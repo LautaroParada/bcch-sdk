@@ -28,4 +28,22 @@ class BcchAPI(RequestHandler):
             valores historicos para la serie de datos macroeconomicos.
 
         """
-        return super().handle_request(self.HOST, query_params)
+        return super().handle_request(self.HOST, query_params, 'GetSeries')
+
+    def get_busqueda(self, **query_params):
+        """
+        Permite ver la lista de series disponibles por frecuencia y su metadata.
+
+        Parameters
+        ----------
+        **query_params : dict
+            parametros de la query a ingresar a la API.
+
+        Returns
+        -------
+        list
+            series con su metadata.
+
+        """
+        return super().handle_request(self.HOST, query_params, 'SearchSeries')
+
