@@ -1,8 +1,8 @@
-# API del BCCh SDK
+# SDK de la API del Banco Central de Chile (BCCh)
 
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/) [![Python Version](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://shields.io/) ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
-**Contents**
+**Contenidos**
 
 1. [Descripción general](#descripción-general-arrow_up)
 2. [Requerimientos](#requerimientos-arrow_up)
@@ -41,6 +41,11 @@ bcch_pwd = os.environ['BCCH_PWD']
 # Creación de la instancia
 client = BancoCentralDeChile(bcch_user, bcch_pwd)
 
+# Verificar que series son de frequencia trimestral
+resp = pd.DataFrame(
+    client.get_busqueda(frecuencia='quarterly')
+    )
+
 # Solicitar la Deuda pública en relación al PIB (porcentaje del PIB)
 resp = pd.DataFrame(
     client.get_macro(serie='F051.D7.PPB.C.Z.Z.T')
@@ -65,11 +70,15 @@ client = BancoCentralDeChile(bcch_user, bcch_pwd)
 ```
 
 ### Series macroeconomicas
+- ```get_busqueda```: Método que permite ver la lista de series disponibles por frecuencia y su metadata.
+	- Argumentos:
+		- ```frecuencia```(str): **Requerido** - Periodicidad para la cual se quiere consultar el catálogo de series disponibles. Puede tomar los valores ```DAILY```, ```MONTHLY```, ```QUARTERLY``` o ```ANNUAL```. Los valores pueden ir en **minúsculas** o **mayúsculas**.
+
 - ```get_macro```: Método para solicitar datos macroeconómicos en base a una id correspondiente.
 	- Argumentos:
-		- ```serie```(**requerido**): ID de los datos a solicitar. El catalogo completo se puede revisar en el archivo [Excel del Banco](https://si3.bcentral.cl/estadisticas/Principal1/Web_Services/index.htm)
-		- ```from_```(opcional): Ingresar fecha desde la cual se requiere recoger datos. Si el parámetro no está presente, se recoge por defecto desde el primer dato disponible. El formato a ocupar es el siguiente ```YYYY-MM-DD```
-		- ```to_```(opcional): Ingresar fecha hasta la cual se requiere recoger datos. Si el parámetro no está presente, se recoge por defecto hasta el último dato disponible. El formato a ocupar es el siguiente ```YYYY-MM-DD```
+		- ```serie```(str): **Requerido** - ID de los datos a solicitar. El catalogo completo se puede revisar en el archivo [Excel del Banco](https://si3.bcentral.cl/estadisticas/Principal1/Web_Services/index.htm) u ocupando el metodo ```get_busqueda```
+		- ```from_```(str): **Opcional** - Ingresar fecha desde la cual se requiere recoger datos. Si el parámetro no está presente, se recoge por defecto desde el primer dato disponible. El formato a ocupar es el siguiente ```YYYY-MM-DD```
+		- ```to_```(str): **Opcional** - Ingresar fecha hasta la cual se requiere recoger datos. Si el parámetro no está presente, se recoge por defecto hasta el último dato disponible. El formato a ocupar es el siguiente ```YYYY-MM-DD```
 
 ## Disclaimer [:arrow_up:](#api-del-bcch-sdk)
 La información contenida en este documento es solo para fines informativos y educativos. Nada de lo contenido en este documento se podrá interpretar como asesoramiento financiero, legal o impositivo. El contenido de este documento corresponde únicamente a la opinión del autor, el cual no es un asesor financiero autorizado ni un asesor de inversiones registrado. El autor no está afiliado como promotor de los servicios del Banco Central de Chile.
