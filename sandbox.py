@@ -24,3 +24,18 @@ else:
 
 # Catalogo de series de datos    
 test = pd.read_excel('https://si3.bcentral.cl/estadisticas/Principal1/Web_Services/Webservices/series.xlsx')
+
+
+#%% test al SDK
+
+from bcch import BancoCentralDeChile
+import os
+import pandas as pd
+
+bcch_user = os.environ['BCCH_USER']
+bcch_pwd = os.environ['BCCH_PWD']
+serie = 'F073.IVP.PRE.Z.D'
+
+client = BancoCentralDeChile(bcch_user, bcch_pwd)
+
+resp = client.get_macro(serie=serie)

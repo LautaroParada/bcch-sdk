@@ -41,8 +41,8 @@ class RequestHandler():
                                  params=query_params_,
                                  timeout=self.timeout)
         
-        if self.resp['Descripcion'] == 'Success':
-            return self.resp['Series']['Obs'].json()
+        if self.resp.json()['Descripcion'] == 'Success':
+            return self.resp.json()['Series']['Obs']
         else:
             print(f"Error en el llamado. Descripción {self.resp.json()['Descripcion']} Codigo: {self.resp.json()['Codigo']}")
     
