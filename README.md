@@ -15,7 +15,7 @@
 
 Cliente no oficial de la API de la bases de datos estadísticos del Banco Central de Chile. Está diseñada para extraer datos macroeconómicos, los cuales deberán ser convertidos en hallazgos que gatillen patrones de comportamiento en Chile y en el mundo. Fue programado en Python :snake:
 
-Escribí un articulo en mi blog comentando su funcionalidad, recomendaciones y un caso de uso práctico. Pueden encontrar el articulo en este link.
+Escribí un articulo en mi blog comentando su funcionalidad, recomendaciones y un caso de uso práctico. Pueden encontrar el articulo en este [link](https://www.volatilevaluations.com/2022/04/blog-post.html).
 
 ## Requerimientos [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
 
