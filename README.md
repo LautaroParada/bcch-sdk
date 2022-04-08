@@ -11,22 +11,22 @@
 5. [Documentación](#documentación-arrow_up)
 6. [Disclaimer](#disclaimer-arrow_up)
 
-## Descripción general [:arrow_up:](#api-del-bcch-sdk)
+## Descripción general [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
 
 Cliente no oficial de la API de la bases de datos estadísticos del Banco Central de Chile. Está diseñada para extraer datos macroeconómicos, los cuales deberán ser convertidos en hallazgos que gatillen patrones de comportamiento en Chile y en el mundo. Fue programado en Python :snake:
 
 Escribí un articulo en mi blog comentando su funcionalidad, recomendaciones y un caso de uso práctico. Pueden encontrar el articulo en este link.
 
-## Requerimientos [:arrow_up:](#api-del-bcch-sdk)
+## Requerimientos [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
 
 - Necesitaras acceso a los datos de la API. Los puedes solicitar en el siguiente [link](https://si3.bcentral.cl/estadisticas/Principal1/Web_Services/index.htm).
 - ```Python``` >= 3.7
 
-## Instalación [:arrow_up:](#api-del-bcch-sdk)
+## Instalación [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
 ```python
 pip install bcch
 ```
-## Demo [:arrow_up:](#api-del-bcch-sdk)
+## Demo [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
 ```python
 #Librerias base
 import pandas as pd
@@ -53,7 +53,7 @@ resp = pd.DataFrame(
 ```
 *Tutorial sobre como guardar y llamar variables de ambiente en Python -> [Hiding Passwords and Secret Keys in Environment Variables (Windows)](https://youtu.be/IolxqkL7cD8)*
 
-## Documentación [:arrow_up:](#api-del-bcch-sdk)
+## Documentación [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
 
 Todos los métodos de la documentación van a ocupar la siguiente instancia de la clase del SDK
 
@@ -80,7 +80,7 @@ client = BancoCentralDeChile(bcch_user, bcch_pwd)
 		- ```from_```(str): **Opcional** - Ingresar fecha desde la cual se requiere recoger datos. Si el parámetro no está presente, se recoge por defecto desde el primer dato disponible. El formato a ocupar es el siguiente ```YYYY-MM-DD```
 		- ```to_```(str): **Opcional** - Ingresar fecha hasta la cual se requiere recoger datos. Si el parámetro no está presente, se recoge por defecto hasta el último dato disponible. El formato a ocupar es el siguiente ```YYYY-MM-DD```
 
-## Disclaimer [:arrow_up:](#api-del-bcch-sdk)
+## Disclaimer [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
 La información contenida en este documento es solo para fines informativos y educativos. Nada de lo contenido en este documento se podrá interpretar como asesoramiento financiero, legal o impositivo. El contenido de este documento corresponde únicamente a la opinión del autor, el cual no es un asesor financiero autorizado ni un asesor de inversiones registrado. El autor no está afiliado como promotor de los servicios del Banco Central de Chile.
 
 Este documento no es una oferta para vender ni comprar instrumentos financieros. Nunca invierta más de lo que puede permitirse perder. Usted debe consultar a un asesor profesional registrado antes de realizar cualquier inversión.
