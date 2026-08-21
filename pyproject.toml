@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bcch"
+version = "1.0.0.dev0"
+description = "Unofficial Python client for the Banco Central de Chile BDE REST API"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+  { name = "Lautaro Parada Opazo", email = "lautaro.parada.opazo@gmail.com" },
+]
+maintainers = [
+  { name = "bcch-sdk contributors" },
+]
+keywords = ["banco-central", "chile", "bde", "economic-data", "rest-api"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Financial and Insurance Industry",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Office/Business :: Financial",
+  "Typing :: Typed",
+]
+dependencies = [
+  "requests>=2.31,<3",
+]
+
+[project.optional-dependencies]
+dataframe = [
+  "pandas>=2.2",
+]
+dev = [
+  "build>=1.2",
+  "openpyxl>=3.1",
+  "pandas>=2.2",
+  "pytest>=8",
+  "ruff>=0.9",
+]
+
+[project.urls]
+Homepage = "https://github.com/LautaroParada/bcch-sdk"
+Documentation = "https://github.com/LautaroParada/bcch-sdk#readme"
+Issues = "https://github.com/LautaroParada/bcch-sdk/issues"
+Source = "https://github.com/LautaroParada/bcch-sdk"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+bcch = [
+  "data/catalog.csv.gz",
+  "data/catalog_metadata.json",
+  "py.typed",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
