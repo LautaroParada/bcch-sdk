@@ -1,86 +1,278 @@
-# SDK de la API del Banco Central de Chile (BCCh)
+# bcch-sdk
 
-[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/) [![Python Version](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://shields.io/) ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+Cliente Python **no oficial** para la API REST de la Base de Datos Estadísticos (BDE)
+del Banco Central de Chile. No existe afiliación, patrocinio ni respaldo del Banco Central
+de Chile.
 
-**Contenidos**
+El paquete se concentra en acceso y descubrimiento de series: autenticación REST por API Key
+Token, transporte HTTP seguro, respuestas tipadas, consultas múltiples con control de tasa,
+integración opcional con pandas y un catálogo BDE local. No incluye análisis económico,
+transformaciones, proyecciones ni visualizaciones.
 
-1. [Descripción general](#descripción-general-arrow_up)
-2. [Requerimientos](#requerimientos-arrow_up)
-3. [Instalación](#instalación-arrow_up)
-4. [Demo](#instalación-arrow_up)
-5. [Documentación](#documentación-arrow_up)
-6. [Disclaimer](#disclaimer-arrow_up)
+## Requisitos
 
-## Descripción general [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
+- Python 3.11 o superior.
+- API Key Token para las operaciones REST.
+- No se requieren token, red ni pandas para consultar el catálogo local.
 
-Cliente no oficial de la API de la bases de datos estadísticos del Banco Central de Chile. Está diseñada para extraer datos macroeconómicos, los cuales deberán ser convertidos en hallazgos que gatillen patrones de comportamiento en Chile y en el mundo. Fue programado en Python :snake:
+## Instalación desde GitHub
 
-Escribí un articulo en mi blog comentando su funcionalidad, recomendaciones y un caso de uso práctico. Pueden encontrar el articulo en este [link](https://www.volatilevaluations.com/2022/04/blog-post.html).
+Después de que esta modernización sea aceptada e integrada en el repositorio original:
 
-## Requerimientos [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
-
-- Necesitaras acceso a los datos de la API. Los puedes solicitar en el siguiente [link](https://si3.bcentral.cl/estadisticas/Principal1/Web_Services/index.htm).
-- ```Python``` >= 3.7
-
-## Instalación [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
-```python
-pip install bcch
+```bash
+python -m pip install git+https://github.com/LautaroParada/bcch-sdk.git
 ```
-## Demo [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
+
+Para instalaciones reproducibles, prefiera una versión etiquetada:
+
+```bash
+python -m pip install git+https://github.com/LautaroParada/bcch-sdk.git@v1.0.0
+```
+
+También puede fijar un commit exacto:
+
+```bash
+python -m pip install git+https://github.com/LautaroParada/bcch-sdk.git@<commit-sha>
+```
+
+La etiqueta estable `v1.0.0` solo debe crearse después de la revisión y aceptación upstream.
+La versión candidata de este cambio es `1.0.0.dev0` y no se publica.
+
+`bcch 0.0.2` en PyPI es la distribución histórica. `pip install bcch` no es la ruta
+recomendada para el desarrollo actual.
+
+Instalación para contribuir:
+
+```bash
+git clone https://github.com/LautaroParada/bcch-sdk.git
+cd bcch-sdk
+python -m pip install -e ".[dev]"
+```
+
+La integración con DataFrame es opcional:
+
+```bash
+python -m pip install "bcch[dataframe] @ git+https://github.com/LautaroParada/bcch-sdk.git"
+```
+
+## Autenticación
+
+La documentación REST actual exige incluir un API Key Token en cada consulta. Cree una cuenta
+BDE, habilite el acceso a la API y copie el token desde **Mi Cuenta → Apikey Token**, siguiendo
+la [guía oficial de acceso](https://si3.bcentral.cl/estadisticas/Principal1/Web_Services/acceso_api.html).
+El token tiene carácter secreto y no debe quedar en el código fuente.
+
 ```python
-#Librerias base
-import pandas as pd
 import os
 
 from bcch import BancoCentralDeChile
 
-# Por seguridad, es mejor guardar las contraseñas y usuarios en las variables de entorno
-bcch_user = os.environ['BCCH_USER']
-bcch_pwd = os.environ['BCCH_PWD']
-
-# Creación de la instancia
-client = BancoCentralDeChile(bcch_user, bcch_pwd)
-
-# Verificar que series son de frequencia trimestral
-resp = pd.DataFrame(
-    client.get_busqueda(frecuencia='quarterly')
-    )
-
-# Solicitar la Deuda pública en relación al PIB (porcentaje del PIB)
-resp = pd.DataFrame(
-    client.get_macro(serie='F051.D7.PPB.C.Z.Z.T')
-    )
+client = BancoCentralDeChile(token=os.environ["BCCH_TOKEN"])
 ```
-*Tutorial sobre como guardar y llamar variables de ambiente en Python -> [Hiding Passwords and Secret Keys in Environment Variables (Windows)](https://youtu.be/IolxqkL7cD8)*
 
-## Documentación [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
+Las versiones históricas de este SDK recibían usuario y contraseña. Este cliente REST moderno
+no transmite esos campos. El constructor histórico falla localmente con
+`BCCHLegacyAuthenticationError` e indica la migración a `BancoCentralDeChile(token="...")`.
+No se implementa SOAP ni un fallback oculto.
 
-Todos los métodos de la documentación van a ocupar la siguiente instancia de la clase del SDK
+El timeout predeterminado es 30 segundos. Puede ajustarlo con
+`BancoCentralDeChile(token=..., timeout=60)`.
+
+## Obtener una serie
 
 ```python
-import os
-from bcch import BancoCentralDeChile
+result = client.get_series(
+    "F073.TCO.PRE.Z.D",
+    start="2025-01-01",
+    end="2025-12-31",
+)
 
-# Por seguridad, es mejor guardar las contraseñas y usuarios en las variables de entorno
-bcch_user = os.environ['BCCH_USER']
-bcch_pwd = os.environ['BCCH_PWD']
-
-# Creación de la instancia
-client = BancoCentralDeChile(bcch_user, bcch_pwd)
+print(result.series_id)
+print(result.title_es)
+print(result.observations[0].date)
+print(result.observations[0].value)
+print(result.observations[0].status_code)
 ```
 
-### Series macroeconomicas
-- ```get_busqueda```: Método que permite ver la lista de series disponibles por frecuencia y su metadata.
-	- Argumentos:
-		- ```frecuencia```(str): **Requerido** - Periodicidad para la cual se quiere consultar el catálogo de series disponibles. Puede tomar los valores ```DAILY```, ```MONTHLY```, ```QUARTERLY``` o ```ANNUAL```. Los valores pueden ir en **minúsculas** o **mayúsculas**.
+`get_series()` llama explícitamente a `function=GetSeries`. Las fechas de entrada usan
+`YYYY-MM-DD`; las fechas de observación REST se convierten a `datetime.date`. Un valor
+`"NaN"` se representa como `None` y su `status_code`, por ejemplo `"ND"`, se conserva.
+El JSON completo permanece disponible en `result.raw`.
 
-- ```get_macro```: Método para solicitar datos macroeconómicos en base a una id correspondiente.
-	- Argumentos:
-		- ```serie```(str): **Requerido** - ID de los datos a solicitar. El catalogo completo se puede revisar en el archivo [Excel del Banco](https://si3.bcentral.cl/estadisticas/Principal1/Web_Services/index.htm) u ocupando el metodo ```get_busqueda```
-		- ```from_```(str): **Opcional** - Ingresar fecha desde la cual se requiere recoger datos. Si el parámetro no está presente, se recoge por defecto desde el primer dato disponible. El formato a ocupar es el siguiente ```YYYY-MM-DD```
-		- ```to_```(str): **Opcional** - Ingresar fecha hasta la cual se requiere recoger datos. Si el parámetro no está presente, se recoge por defecto hasta el último dato disponible. El formato a ocupar es el siguiente ```YYYY-MM-DD```
+Los alias históricos `serie`, `timeseries`, `from_`, `firstdate`, `to_` y
+`lastdate` siguen disponibles.
 
-## Disclaimer [:arrow_up:](#sdk-de-la-api-del-banco-central-de-chile-bcch)
-La información contenida en este documento es solo para fines informativos y educativos. Nada de lo contenido en este documento se podrá interpretar como asesoramiento financiero, legal o impositivo. El contenido de este documento corresponde únicamente a la opinión del autor, el cual no es un asesor financiero autorizado ni un asesor de inversiones registrado. El autor no está afiliado como promotor de los servicios del Banco Central de Chile.
+## Buscar series en vivo
 
-Este documento no es una oferta para vender ni comprar instrumentos financieros. Nunca invierta más de lo que puede permitirse perder. Usted debe consultar a un asesor profesional registrado antes de realizar cualquier inversión.
+```python
+series_mensuales = client.search_series(frequency="monthly")
+
+for item in series_mensuales[:3]:
+    print(item.series_id, item.title_es)
+```
+
+`search_series()` ejecuta una consulta REST en vivo con `function=SearchSeries`. Acepta
+`DAILY`, `MONTHLY`, `QUARTERLY` y `ANNUAL`, sin distinguir mayúsculas, además de
+`diaria`, `mensual`, `trimestral` y `anual`.
+
+## Obtener varias series
+
+```python
+results = client.get_many(
+    {
+        "usd": "F073.TCO.PRE.Z.D",
+        "uf": "F073.UFF.PRE.Z.D",
+        "ipc_indice": "F074.IPC.IND.Z.EP23.C.M",
+        "ipc_variacion": "F074.IPC.VAR.Z.EP23.C.M",
+    },
+    start="2025-01-01",
+    end="2025-12-31",
+)
+
+print(results["uf"].observations[-1])
+```
+
+`get_many()` es una conveniencia del SDK: la API REST no tiene endpoint masivo. Realiza
+consultas individuales y devuelve un `dict[str, SeriesResult]` en el orden de entrada.
+El cliente respeta el límite oficial de hasta **5 series diferentes por segundo por cuenta**
+y no usa paralelismo sin control.
+
+## Catálogo local y SearchSeries no son lo mismo
+
+El snapshot local fue convertido desde el catálogo BDE del **2026-08-21**. Conserva 30.272
+filas, 24.980 códigos únicos y todos los contextos duplicados por capítulo o cuadro.
+
+```python
+from bcch import SeriesCatalog
+
+# No requiere token, red ni pandas.
+catalog = SeriesCatalog()
+
+matches = catalog.search(
+    "inflación",
+    frecuencia="Mensual",
+    vigencia="Vigente",
+)
+
+ipc = catalog.get("F074.IPC.IND.Z.EP23.C.M")
+for context in ipc.contexts:
+    print(context.chapter, context.table, context.name)
+```
+
+El mismo catálogo está disponible como `client.catalog`:
+
+```python
+usd = client.catalog.get("F073.TCO.PRE.Z.D")
+fuentes_bcch = client.catalog.search(
+    source="Banco Central de Chile",
+    unit="Índice",
+    limit=10,
+)
+```
+
+- `client.search_series(...)`: catálogo operativo obtenido desde el REST en vivo; requiere
+  token y red.
+- `client.catalog.search(...)`: snapshot local enriquecido; no requiere token ni red.
+
+`catalog.search()` permite filtrar por texto, frecuencia, vigencia, capítulo, fuente y unidad.
+La búsqueda textual no distingue mayúsculas ni acentos. `catalog.get(code)` devuelve todos
+los contextos del código, sin deduplicarlos.
+
+## pandas opcional
+
+```python
+frame = result.to_dataframe()
+print(frame.head())
+
+combined = client.get_many_dataframe(
+    ["F073.TCO.PRE.Z.D", "F073.UFF.PRE.Z.D"],
+    start="2025-01-01",
+    end="2025-01-31",
+)
+```
+
+El import principal de `bcch` no importa pandas. Si no está instalado, un método específico
+de DataFrame explica cómo instalar el extra `bcch[dataframe]`.
+
+## Compatibilidad histórica
+
+```python
+import warnings
+
+with warnings.catch_warnings():
+    warnings.simplefilter("always", DeprecationWarning)
+    observations = client.get_macro(
+        serie="F073.TCO.PRE.Z.D",
+        from_="2025-01-01",
+        to_="2025-01-31",
+    )
+    series_infos = client.get_busqueda(frecuencia="quarterly")
+```
+
+`get_macro()` mantiene el resultado histórico: una lista de diccionarios de observaciones.
+`get_busqueda()` mantiene una lista de diccionarios `SeriesInfos`. Ambos emiten
+`DeprecationWarning`. La única excepción de compatibilidad es la autenticación histórica por
+usuario/contraseña, rechazada localmente por seguridad.
+
+## Manejo de errores
+
+```python
+from bcch import (
+    BCCHAPIError,
+    BCCHAuthenticationError,
+    BCCHConnectionError,
+    BCCHResponseError,
+    BCCHTimeoutError,
+)
+
+try:
+    client.get_series("F073.TCO.PRE.Z.D")
+except BCCHAuthenticationError:
+    print("Revise el API Key Token")
+except BCCHTimeoutError:
+    print("La consulta excedió el timeout")
+except BCCHConnectionError:
+    print("No fue posible conectar con el servicio")
+except BCCHAPIError as exc:
+    print(exc.code, exc.description)
+except BCCHResponseError:
+    print("La respuesta no respetó el contrato esperado")
+```
+
+El transporte usa `requests.Session`, reintentos acotados solo para fallas transitorias y
+validación de `Codigo` y `Descripcion`; HTTP 200 no basta para considerar exitosa una
+operación. Los mensajes no incluyen el token.
+
+## Actualizar el catálogo
+
+```bash
+python scripts/update_catalog.py /ruta/al/catalogo-oficial.xlsx
+```
+
+El script valida hoja, columnas e invariantes del snapshot autorizado. Conserva todas las
+filas y produce `catalog.csv.gz` y `catalog_metadata.json` deterministas. El XLSX original
+no forma parte del paquete.
+
+## Desarrollo
+
+```bash
+ruff check .
+pytest
+python -m build
+```
+
+CI ejecuta estas validaciones en Python 3.11, 3.12, 3.13 y 3.14. No existe workflow de
+publicación a PyPI y las pruebas normales no requieren credenciales.
+
+## Fuente de datos, términos y licencia
+
+Fuente de los datos y metadatos: **Banco Central de Chile, Base de Datos Estadísticos (BDE)**.
+Consulte la [documentación REST oficial](https://si3.bcentral.cl/estadisticas/Principal1/Web_Services/documentacion.html),
+la [ayuda y soporte](https://si3.bcentral.cl/estadisticas/Principal1/Web_Services/ayuda_soporte.html)
+y los términos de uso de la BDE antes de redistribuir resultados.
+
+Los datos pertenecen a sus fuentes originales. Este software no ofrece asesoría financiera,
+legal, tributaria ni económica.
+
+El código conserva la autoría original de Lautaro Parada Opazo y se distribuye bajo
+Apache License 2.0. Consulte [LICENSE](LICENSE).

@@ -1,0 +1,22 @@
+{
+  "duplicate_context_rows": 5292,
+  "duplicated_codes": 3704,
+  "frequency_counts": {
+    "Anual": 7287,
+    "Diaria": 2101,
+    "Mensual": 10563,
+    "Trimestral": 10321
+  },
+  "missing_api": 5,
+  "missing_first_value_date": 5,
+  "pib_example_contexts": 10,
+  "rows": 30272,
+  "snapshot_date": "2026-08-21",
+  "source": "Banco Central de Chile - Base de Datos Estadísticos",
+  "status_counts": {
+    "Descontinuado": 195,
+    "Histórico": 10806,
+    "Vigente": 19271
+  },
+  "unique_series": 24980
+}
