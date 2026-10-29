@@ -1,22 +1,23 @@
 {
-  "duplicate_context_rows": 5292,
-  "duplicated_codes": 3704,
+  "duplicate_context_rows": 5629,
+  "duplicated_codes": 3942,
   "frequency_counts": {
-    "Anual": 7287,
+    "Anual": 7675,
     "Diaria": 2101,
-    "Mensual": 10563,
-    "Trimestral": 10321
+    "Mensual": 10751,
+    "Trimestral": 10393
   },
-  "missing_api": 5,
-  "missing_first_value_date": 5,
+  "missing_api": 61,
+  "missing_first_value_date": 61,
   "pib_example_contexts": 10,
-  "rows": 30272,
-  "snapshot_date": "2026-08-21",
+  "rows": 30920,
+  "snapshot_date": "2026-10-29",
   "source": "Banco Central de Chile - Base de Datos Estadísticos",
+  "source_sha256": "6a411f87ac7b7a1b1cb630b91f898b10e8ca3e00abd0ab868606b2aa0eb71936",
   "status_counts": {
     "Descontinuado": 195,
-    "Histórico": 10806,
-    "Vigente": 19271
+    "Histórico": 10800,
+    "Vigente": 19925
   },
-  "unique_series": 24980
+  "unique_series": 25291
 }

@@ -168,6 +168,24 @@ def test_search_series_success_returns_typed_items_and_dates() -> None:
     assert results[0].raw["spanishTitle"] == "Dólar observado"
 
 
+@pytest.mark.parametrize("field", ["firstObservation", "lastObservation", "updatedAt", "createdAt"])
+def test_search_series_nd_metadata_date_does_not_break_catalog(field: str) -> None:
+    payload = search_series_payload()
+    payload["SeriesInfos"][0][field] = "ND"
+    client, _ = _client_with([FakeResponse(payload)])
+    item = client.search_series("DAILY")[0]
+    attribute = {"firstObservation": "first_observation", "lastObservation": "last_observation",
+                 "updatedAt": "updated_at", "createdAt": "created_at"}[field]
+    assert getattr(item, attribute) is None
+    assert item.raw[field] == "ND"
+
+
+def test_nd_is_not_accepted_as_an_observation_date() -> None:
+    client, _ = _client_with([FakeResponse(get_series_payload(observation_date="ND"))])
+    with pytest.raises(BCCHResponseError, match="observation"):
+        client.get_series("F073.TCO.PRE.Z.D")
+
+
 @pytest.mark.parametrize(
     "payload",
     [

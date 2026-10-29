@@ -13,7 +13,9 @@ import pytest
 from bcch import SeriesCatalog
 from scripts.update_catalog import (
     OUTPUT_COLUMNS,
+    SOURCE_COLUMNS,
     compute_statistics,
+    read_workbook,
     validate_statistics,
     write_outputs,
 )
@@ -27,24 +29,25 @@ def catalog() -> SeriesCatalog:
 
 
 def test_catalog_load_and_unique_series_count(catalog: SeriesCatalog) -> None:
-    assert len(catalog) == 24_980
+    assert len(catalog) == 25_291
 
 
 def test_catalog_preserves_all_source_rows(catalog: SeriesCatalog) -> None:
-    assert sum(len(entry.contexts) for entry in catalog) == 30_272
+    assert sum(len(entry.contexts) for entry in catalog) == 30_920
 
 
 def test_catalog_metadata(catalog: SeriesCatalog) -> None:
     metadata = catalog.metadata
 
     assert metadata["source"] == "Banco Central de Chile - Base de Datos Estadísticos"
-    assert metadata["snapshot_date"] == "2026-08-21"
-    assert metadata["rows"] == 30_272
-    assert metadata["unique_series"] == 24_980
-    assert metadata["duplicated_codes"] == 3_704
-    assert metadata["duplicate_context_rows"] == 5_292
-    assert metadata["missing_api"] == 5
-    assert metadata["missing_first_value_date"] == 5
+    assert metadata["snapshot_date"] == "2026-10-29"
+    assert metadata["rows"] == 30_920
+    assert metadata["unique_series"] == 25_291
+    assert metadata["duplicated_codes"] == 3_942
+    assert metadata["duplicate_context_rows"] == 5_629
+    assert metadata["missing_api"] == 61
+    assert metadata["missing_first_value_date"] == 61
+    assert len(metadata["source_sha256"]) == 64
 
 
 def test_duplicate_contexts_are_preserved(catalog: SeriesCatalog) -> None:
@@ -70,8 +73,8 @@ def test_pib_example_has_all_ten_contexts(catalog: SeriesCatalog) -> None:
 def test_catalog_missing_values_are_preserved(catalog: SeriesCatalog) -> None:
     contexts = [context for entry in catalog for context in entry.contexts]
 
-    assert sum(context.api_url is None for context in contexts) == 5
-    assert sum(context.first_value_date is None for context in contexts) == 5
+    assert sum(context.api_url is None for context in contexts) == 61
+    assert sum(context.first_value_date is None for context in contexts) == 61
 
 
 def test_catalog_search_filters_and_spanish_aliases(catalog: SeriesCatalog) -> None:
@@ -178,6 +181,23 @@ def test_catalog_generation_is_byte_reproducible(tmp_path: Path) -> None:
 def test_generation_validation_fails_on_changed_invariants() -> None:
     with pytest.raises(ValueError, match="Catalog invariants"):
         validate_statistics({"rows": 1})
+
+
+def test_workbook_urls_never_copy_embedded_tokens(tmp_path: Path) -> None:
+    import openpyxl
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = "Series BDE"
+    sheet.append(SOURCE_COLUMNS)
+    sheet.append(["Precios", "IPC", "F.TEST.M", "Índice", "Mensual", "Índice", "BCCh",
+                  "2020-01-01", "Vigente", "https://example.invalid/?token=secret-test-only"])
+    source = tmp_path / "catalog.xlsx"
+    workbook.save(source)
+    row = read_workbook(source)[0]
+    assert "secret-test-only" not in row["api_url"]
+    assert row["api_url"].startswith("https://si3.bcentral.cl/SieteRestWS/")
+    assert "token=TOKEN" in row["api_url"]
 
 
 def test_core_import_does_not_import_pandas() -> None:

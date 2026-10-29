@@ -114,6 +114,15 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
+*.env
+*.env.*
+!.env.example
+.secrets/
+secrets.*
+credentials.*
+*.key
+*.pem
 .venv
 env/
 venv/

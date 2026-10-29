@@ -6,12 +6,14 @@ from __future__ import annotations
 import argparse
 import csv
 import gzip
+import hashlib
 import io
 import json
 from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 
 SHEET_NAME = "Series BDE"
 SOURCE_COLUMNS = (
@@ -39,22 +41,22 @@ OUTPUT_COLUMNS = (
     "api_url",
 )
 EXPECTED = {
-    "rows": 30_272,
-    "unique_series": 24_980,
-    "duplicated_codes": 3_704,
-    "duplicate_context_rows": 5_292,
-    "missing_api": 5,
-    "missing_first_value_date": 5,
+    "rows": 30_920,
+    "unique_series": 25_291,
+    "duplicated_codes": 3_942,
+    "duplicate_context_rows": 5_629,
+    "missing_api": 61,
+    "missing_first_value_date": 61,
     "frequency_counts": {
-        "Anual": 7_287,
+        "Anual": 7_675,
         "Diaria": 2_101,
-        "Mensual": 10_563,
-        "Trimestral": 10_321,
+        "Mensual": 10_751,
+        "Trimestral": 10_393,
     },
     "status_counts": {
         "Descontinuado": 195,
-        "Histórico": 10_806,
-        "Vigente": 19_271,
+        "Histórico": 10_800,
+        "Vigente": 19_925,
     },
     "pib_example_contexts": 10,
 }
@@ -88,7 +90,14 @@ def read_workbook(path: Path) -> list[dict[str, str]]:
         if len(source_row) != len(SOURCE_COLUMNS):
             raise ValueError("Catalog row has an unexpected number of columns")
         normalized = [_normalize_value(value) for value in source_row]
-        rows.append(dict(zip(OUTPUT_COLUMNS, normalized, strict=True)))
+        row = dict(zip(OUTPUT_COLUMNS, normalized, strict=True))
+        if row["api_url"]:
+            # Never package a credential accidentally embedded in an input workbook.
+            row["api_url"] = "https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx?" + urlencode({
+                "token": "TOKEN", "firstdate": row["first_value_date"],
+                "timeseries": row["code"], "function": "GetSeries",
+            })
+        rows.append(row)
     workbook.close()
     return rows
 
@@ -186,7 +195,7 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=Path(__file__).resolve().parents[1] / "src" / "bcch" / "data",
     )
-    parser.add_argument("--snapshot-date", default="2026-08-21")
+    parser.add_argument("--snapshot-date", default="2026-10-29")
     return parser.parse_args()
 
 
@@ -196,6 +205,7 @@ def main() -> None:
     statistics = compute_statistics(rows)
     validate_statistics(statistics)
     metadata = build_metadata(statistics, args.snapshot_date)
+    metadata["source_sha256"] = hashlib.sha256(args.xlsx.read_bytes()).hexdigest()
     catalog_path, metadata_path = write_outputs(rows, metadata, args.output_dir)
     print(f"Wrote {catalog_path.name} and {metadata_path.name}")
     print(json.dumps(statistics, ensure_ascii=False, sort_keys=True))
