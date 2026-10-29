@@ -24,7 +24,9 @@ def parse_response_date(value: object, *, field: str) -> date:
 
 
 def parse_optional_response_date(value: object, *, field: str) -> date | None:
-    if value is None or value == "":
+    # SearchSeries uses ND for dates of series without observations.
+    # Observation dates remain mandatory and continue to use the strict parser.
+    if value is None or value in ("", "ND"):
         return None
     return parse_response_date(value, field=field)
 

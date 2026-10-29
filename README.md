@@ -139,8 +139,10 @@ y no usa paralelismo sin control.
 
 ## Catálogo local y SearchSeries no son lo mismo
 
-El snapshot local fue convertido desde el catálogo BDE del **2026-08-21**. Conserva 30.272
-filas, 24.980 códigos únicos y todos los contextos duplicados por capítulo o cuadro.
+El snapshot local fue convertido desde el archivo de catálogo BDE identificado como
+**2026-10-29**. Conserva 30.920 filas, 25.291 códigos únicos y todos los contextos
+duplicados por capítulo o cuadro. La metadata incluye la huella SHA-256 del XLSX fuente.
+La fecha identifica el archivo de origen; no certifica la disponibilidad de cada serie en vivo.
 
 ```python
 from bcch import SeriesCatalog
@@ -250,7 +252,8 @@ python scripts/update_catalog.py /ruta/al/catalogo-oficial.xlsx
 ```
 
 El script valida hoja, columnas e invariantes del snapshot autorizado. Conserva todas las
-filas y produce `catalog.csv.gz` y `catalog_metadata.json` deterministas. El XLSX original
+filas y produce `catalog.csv.gz` y `catalog_metadata.json` deterministas. Las URL de ejemplo
+se reconstruyen con el marcador `TOKEN`, sin copiar credenciales del XLSX. El XLSX original
 no forma parte del paquete.
 
 ## Desarrollo
